@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -funroll-loops -fstrict-aliasing -ffast-m
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 
 set(BUILD_SHARED_LIBRARIES, false)
+set(BUILD_STATIC_EXECUTABLES false)
 
 set(mysync_SRC src/main.cpp)
 add_executable(mysync ${mysync_SRC})
@@ -14,8 +15,8 @@ find_package (Threads)
 
 #yaml-cpp-0.5.1
 add_subdirectory(lib/yaml-cpp-0.5.1)
-add_library(YAML_CPP)
-target_link_libraries (mysync ${CMAKE_THREAD_LIBS_INIT})
+#add_library(yaml-cpp)
+target_link_libraries (mysync yaml-cpp ${CMAKE_THREAD_LIBS_INIT} ${MYSQL_LIBRARIES})
 
 # distclean
 ADD_CUSTOM_TARGET (distclean @echo cleaning for source distribution)
@@ -87,4 +88,19 @@ MARK_AS_ADVANCED(
   MYSQL_LIBRARY
   MYSQL_INCLUDE_DIR
 )
-
+if(BUILD_STATIC_EXECUTABLES) 
+    set(CMAKE_EXE_LINKER_FLAGS -static) 
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a) 
+    set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic 
+    set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS) 
+    set(CMAKE_SHARED_LIBRARY_C_FLAGS)         # remove -fPIC 
+    set(CMAKE_SHARED_LIBRARY_CXX_FLAGS) 
+    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic 
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS) 
+    # Maybe this works as well, haven't tried yet. 
+    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
+else(BUILD_STATIC_EXECUTABLES) 
+    # Set RPATH to use for installed targets; append linker search path 
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LOFAR_LIBDIR}") 
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE) 
+endif(BUILD_STATIC_EXECUTABLES) 

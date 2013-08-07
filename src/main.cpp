@@ -5,8 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-#include "yaml.h"
-
+#include <yaml-cpp/yaml.h>
 int main(int argc, const char* argv[]) {
   return 0;
 }
