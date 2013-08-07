@@ -1,0 +1,16 @@
+tables: ['currency']
+
+source:
+  host: 127.0.0.1:3306
+  user: root
+  pass: 
+
+target:
+  host: 127.0.0.1:3306
+  user: root
+  pass: 
+
+table:
+  foo:
+    statement: "SELECT * FROM currency"
+    method: upsert
