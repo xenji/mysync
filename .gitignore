@@ -1,0 +1,15 @@
+DerivedData/
+*.csv
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+mysync
+CMakeScripts/
+mysync.build/
+mysync.xcodeproj/
+Debug
+Release
+*.un~
+build/*
+nbproject/
