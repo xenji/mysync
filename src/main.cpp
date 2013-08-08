@@ -12,6 +12,8 @@
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 
+#include "dbtable.h"
+
 int main(int argc, char* argv[]) {
     
     if (argc != 2) {
@@ -58,7 +60,12 @@ int main(int argc, char* argv[]) {
     
     std::cout << "Gathering tables to process" << std::endl;
     for (std::size_t i = 0; i < tables.size(); i++) {
-        std::cout << "\t Found: " << tables[i].as<std::string>() << std::endl;
+        const std::string table_name = tables[i].as<std::string>();
+        std::cout << "\t Found: " << table_name << std::endl;
+        
+        MySync::DbTable table = MySync::DbTable(table_name, config["table"][table_name]["statement"].as<std::string>());
+        table.setSourceConnection(src_con);
+        table.setTargetConnection(trgt_con);
     }
     
     return 0;
