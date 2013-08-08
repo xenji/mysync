@@ -11,6 +11,13 @@
 
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
+#include "method_proxy.h"
+#include "update_method.h"
+#include "insert_method.h"
+
+#include "dbtable.h"
+
+#define DEFAULT_BATCH_SIZE  1000
 
 int main(int argc, char* argv[]) {
     
@@ -40,8 +47,8 @@ int main(int argc, char* argv[]) {
     sql::Connection *src_con = sql_driver->connect(config["source"]["host"].as<std::string>(),
                                                    config["source"]["user"].as<std::string>(),
                                                    src_password);
+    src_con->setSchema(config["source"]["database"].as<std::string>());
     
-
     // target connection
     std::string trgt_password = "";
     if (config["target"]["pass"].IsDefined()) {
@@ -51,15 +58,59 @@ int main(int argc, char* argv[]) {
     sql::Connection *trgt_con = sql_driver->connect(config["target"]["host"].as<std::string>(),
                                                     config["target"]["user"].as<std::string>(),
                                                     trgt_password);
-    
+    trgt_con->setSchema(config["target"]["database"].as<std::string>());
     
     // go over the tables
     YAML::Node tables = config["tables"];
     
     std::cout << "Gathering tables to process" << std::endl;
     for (std::size_t i = 0; i < tables.size(); i++) {
-        std::cout << "\t Found: " << tables[i].as<std::string>() << std::endl;
+        const std::string table_name = tables[i].as<std::string>();
+        std::cout << "\tFound: " << table_name << std::endl;
+        
+        if (!config["table"][table_name].IsDefined()) {
+            std::cerr << "Table " << table_name << " is set in table list, but not described in the table section." << std::endl;
+            std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
+            continue;
+        }
+        
+        MySync::DbTable table = MySync::DbTable(table_name, config["table"][table_name]["statement"].as<std::string>());
+        table.setSourceConnection(src_con);
+        table.setTargetConnection(trgt_con);
+        table.gatherTargetFields();
+        table.gatherAndValidateSourceFields();
+        
+        std::string method = config["table"][table_name]["method"].as<std::string>();
+        
+        std::cout << "\tSelected method for processing: " << method << std::endl;
+        if (method == "update") {
+            MySync::UpdateMethod *mp = new MySync::UpdateMethod();
+            table.setMethodProxy(mp);
+        }
+        else if (method == "insert") {
+            MySync::InsertMethod *mp = new MySync::InsertMethod();
+            table.setMethodProxy(mp);
+        }
+        else if (method == "upsert") {
+            MySync::InsertMethod *mp = new MySync::InsertMethod();
+            table.setMethodProxy(mp);
+        }
+        else {
+            std::cerr << "\tProvided method " << method << " for table " << table_name << " is unknown." << std::endl;
+            std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
+            continue;
+        }
+        
+        int batch_size = DEFAULT_BATCH_SIZE;
+        std::cout << "\tDefault batch size by MySync is " << DEFAULT_BATCH_SIZE << "." << std::endl;
+        if (config["table"][table_name]["batch_size"].IsDefined()) {
+            batch_size = config["table"][table_name]["batch_size"].as<int>();
+            std::cout << "\tSettings say the new batch size is " << batch_size << "." << std::endl;
+        }
+        std::cout << "\tEventhough the default and your custom batch size is recognized by MySync, the feature is not yet implemented. Sorry." << std::endl;
+        table.setBatchSize(batch_size);
+        
+        table.run();
     }
-    
     return 0;
 }

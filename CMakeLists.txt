@@ -9,7 +9,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 set(BUILD_SHARED_LIBRARIES, false)
 set(BUILD_STATIC_EXECUTABLES false)
 
-set(mysync_SRC src/main.cpp)
+file(GLOB_RECURSE mysync_SRC src/*)
+# set(mysync_SRC src/main.cpp src/dbtable.cpp src/dbtable.h)
 add_executable(mysync ${mysync_SRC})
 
 #find_package (Threads) // ${CMAKE_THREAD_LIBS_INIT}

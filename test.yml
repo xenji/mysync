@@ -3,14 +3,17 @@ tables: ['currency']
 source:
   host: 127.0.0.1:3306
   user: root
+  database: trivago
   #pass: 
 
 target:
   host: 127.0.0.1:3306
   user: root
+  database: trivago_new
   #pass: 
 
 table:
-  foo:
+  currency:
     statement: "SELECT * FROM currency"
-    method: upsert
+    method: update
+    #batch_size: 10 # default is 1000
