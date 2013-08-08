@@ -10,5 +10,12 @@
 #define __mysync__upsert_method__
 
 #include <iostream>
+#include "method_proxy.h"
 
+namespace MySync {
+    class UpsertMethod : public MethodProxy {
+        std::string getMethodName();
+        std::string generateStatement(const std::vector<std::string> values);
+    };
+}
 #endif /* defined(__mysync__upsert_method__) */

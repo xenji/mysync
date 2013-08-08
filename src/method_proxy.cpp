@@ -17,4 +17,8 @@ namespace MySync {
     void MethodProxy::setTable(const std::string _table) {
         table_name = _table;
     }
+    
+    void MethodProxy::setBatchSize(int _size) {
+        size = _size;
+    }
 }

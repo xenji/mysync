@@ -17,6 +17,8 @@
 
 #include "dbtable.h"
 
+#define DEFAULT_BATCH_SIZE  1000
+
 int main(int argc, char* argv[]) {
     
     if (argc != 2) {
@@ -80,16 +82,17 @@ int main(int argc, char* argv[]) {
         
         std::string method = config["table"][table_name]["method"].as<std::string>();
         
+        std::cout << "\tSelected method for processing: " << method << std::endl;
         if (method == "update") {
-            MySync::UpdateMethod mp = MySync::UpdateMethod();
+            MySync::UpdateMethod *mp = new MySync::UpdateMethod();
             table.setMethodProxy(mp);
         }
         else if (method == "insert") {
-            MySync::InsertMethod mp = MySync::InsertMethod();
+            MySync::InsertMethod *mp = new MySync::InsertMethod();
             table.setMethodProxy(mp);
         }
         else if (method == "upsert") {
-            MySync::InsertMethod mp = MySync::InsertMethod();
+            MySync::InsertMethod *mp = new MySync::InsertMethod();
             table.setMethodProxy(mp);
         }
         else {
@@ -97,6 +100,17 @@ int main(int argc, char* argv[]) {
             std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
             continue;
         }
+        
+        int batch_size = DEFAULT_BATCH_SIZE;
+        std::cout << "\tDefault batch size by MySync is " << DEFAULT_BATCH_SIZE << "." << std::endl;
+        if (config["table"][table_name]["batch_size"].IsDefined()) {
+            batch_size = config["table"][table_name]["batch_size"].as<int>();
+            std::cout << "\tSettings say the new batch size is " << batch_size << "." << std::endl;
+        }
+        std::cout << "\tEventhough the default and your custom batch size is recognized by MySync, the feature is not yet implemented. Sorry." << std::endl;
+        table.setBatchSize(batch_size);
+        
+        table.run();
     }
     return 0;
 }

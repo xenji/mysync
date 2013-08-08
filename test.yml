@@ -16,3 +16,4 @@ table:
   currency:
     statement: "SELECT * FROM currency"
     method: update
+    #batch_size: 10 # default is 1000

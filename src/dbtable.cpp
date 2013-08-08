@@ -16,7 +16,6 @@ namespace MySync {
     DbTable::DbTable(std::string table, std::string statement) {
         select_statement = statement;
         table_name = table;
-        limit = DEFAULT_BATCH_SIZE;
     }
     
     void DbTable::setSourceConnection(sql::Connection *c) {
@@ -28,7 +27,7 @@ namespace MySync {
     }
     
     void DbTable::setBatchSize(int bsize) {
-        limit = bsize;
+        batch_size = bsize;
     }
     
     void DbTable::setTableName(std::string _table_name) {
@@ -37,6 +36,10 @@ namespace MySync {
     
     std::string DbTable::getTableName() {
         return table_name;
+    }
+    
+    void DbTable::setMethodProxy(MySync::MethodProxy *_method_proxy) {
+        method_proxy = _method_proxy;
     }
     
     void DbTable::gatherTargetFields() {
@@ -80,11 +83,53 @@ namespace MySync {
             std::cerr << "\t\tThe field alignment is by position, so take care that your query has the exact column count and the cols match in order." << std::endl;
             std::cerr << "\tFail: Validation for table " << table_name << std::endl;
             return false;
+            delete res;
+            delete stmt;
         }
         else {
             std::cout << "\t\tColumn count looks ok. Proceeding." << std::endl;
         }
+        delete res;
+        delete stmt;
         std::cout << "\tDone: gatherAndValidateSourceFields" << std::endl;
         return true;
+    }
+    
+    void DbTable::run() {
+        std::cout << "\tJob: run | Table: " << table_name << std::endl;
+        method_proxy->setFields(source_fields);
+        method_proxy->setTable(table_name);
+        
+        int work_count = 0;
+//        int offset = 0; // for later. make it work first.
+        sql::ResultSet *source_result;
+        sql::ResultSetMetaData *meta;
+        sql::Statement *source_statement = source_conn->createStatement();
+        source_result = source_statement->executeQuery(select_statement);
+
+        std::cout << "\t\tReceived data from the source, starting target run." << std::endl;
+        
+        while (source_result->next()) {
+            sql::Statement *target_statement = target_conn->createStatement();
+            std::vector<std::string> values;
+            
+            meta = source_result->getMetaData();
+            int col_count = meta->getColumnCount();
+            
+            for (int i = 1; i != col_count; i++) {
+                values.push_back(source_result->getString(i));
+            }
+            
+            std::string statement = method_proxy->generateStatement(values);
+            std::cout << "\t\t\tDEBUG: " << statement << std::endl;
+            //target_statement->execute(statement);
+            ++work_count;
+        }
+        
+        delete source_result;
+        delete source_statement;
+        
+        std::cout << "\t\tProcessed " << work_count << " rows." << std::endl;
+        std::cout << "\tDone: run" << std::endl;
     }
 }
