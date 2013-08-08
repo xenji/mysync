@@ -12,14 +12,13 @@ set(BUILD_STATIC_EXECUTABLES false)
 set(mysync_SRC src/main.cpp)
 add_executable(mysync ${mysync_SRC})
 
-find_package (Threads)
+#find_package (Threads) // ${CMAKE_THREAD_LIBS_INIT}
 FIND_PACKAGE(MySQLConnectorCPP)
-
-add_subdirectory(lib/yaml-cpp-0.5.1)
-target_link_libraries (mysync yaml-cpp ${CMAKE_THREAD_LIBS_INIT} ${MYSQLCONNECTORCPP_LIBRARIES})
+FIND_PACKAGE(YamlCpp)
+target_link_libraries (mysync ${YAMLCPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES})
 
 include_directories(
-${CMAKE_SOURCE_DIR}/lib/yaml-cpp-0.5.1/include
+${YAMLCPP_INCLUDE_DIR}
 ${MYSQLCONNECTORCPP_INCLUDE_DIR}
 /usr/local/include
 /usr/include
