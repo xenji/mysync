@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
     sql::Connection *src_con = sql_driver->connect(config["source"]["host"].as<std::string>(),
                                                    config["source"]["user"].as<std::string>(),
                                                    src_password);
+    src_con->setSchema(config["source"]["database"].as<std::string>());
     
-
     // target connection
     std::string trgt_password = "";
     if (config["target"]["pass"].IsDefined()) {
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     sql::Connection *trgt_con = sql_driver->connect(config["target"]["host"].as<std::string>(),
                                                     config["target"]["user"].as<std::string>(),
                                                     trgt_password);
-    
+    trgt_con->setSchema(config["target"]["database"].as<std::string>());
     
     // go over the tables
     YAML::Node tables = config["tables"];
@@ -63,9 +63,14 @@ int main(int argc, char* argv[]) {
         const std::string table_name = tables[i].as<std::string>();
         std::cout << "\t Found: " << table_name << std::endl;
         
+        if (!config["table"][table_name].IsDefined()) {
+            std::cerr << "Table " << table_name << " is set in table list, but not described in the table section." << std::endl;
+        }
+        
         MySync::DbTable table = MySync::DbTable(table_name, config["table"][table_name]["statement"].as<std::string>());
         table.setSourceConnection(src_con);
         table.setTargetConnection(trgt_con);
+        table.gatherSourceFields();
     }
     
     return 0;

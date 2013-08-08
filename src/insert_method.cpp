@@ -7,3 +7,14 @@
 //
 
 #include "insert_method.h"
+
+namespace MySync {
+
+    std::string InsertMethod::getMethodName() {
+        return "INSERT";
+    }
+    
+    std::string InsertMethod::generateStatement(const std::vector<std::string> values) {
+        return "";
+    }
+}

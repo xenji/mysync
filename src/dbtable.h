@@ -11,23 +11,27 @@
 
 #include <iostream>
 #include "mysql_connection.h"
-
+#include <vector>
+#include "method_proxy.h"
 #define DEFAULT_BATCH_SIZE 1000
 
 namespace MySync {
     class DbTable {
         
     public:
-        std::string table_name;
-        
         DbTable(std::string table_name, std::string select_statement);
         void setSourceConnection(sql::Connection *conn);
         void setTargetConnection(sql::Connection *conn);
         void setBatchSize(int bsize);
-//        void setMethodProxy()
+        void setMethodProxy(MethodProxy _method_proxy);
+        void setTableName(std::string _table_name);
+        std::string getTableName();
+        void gatherSourceFields();
         
     private:
         int limit;
+        std::vector<std::string> source_fields;
+        std::string table_name;
         sql::Connection *source_conn;
         sql::Connection *target_conn;
         std::string select_statement;

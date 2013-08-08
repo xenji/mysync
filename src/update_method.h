@@ -15,6 +15,7 @@
 namespace MySync {
     class UpdateMethod : public MethodProxy {
         std::string getMethodName();
+        std::string generateStatement(const std::vector<std::string> values);
     };
 }
 

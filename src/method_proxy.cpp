@@ -10,5 +10,11 @@
 
 namespace MySync {
 
-
+    void MethodProxy::setFields(const std::vector<std::string> _fields) {
+        fields = _fields;
+    }
+    
+    void MethodProxy::setTable(const std::string _table) {
+        table_name = _table;
+    }
 }
