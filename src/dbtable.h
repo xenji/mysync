@@ -26,7 +26,8 @@ namespace MySync {
         void setMethodProxy(MethodProxy _method_proxy);
         void setTableName(std::string _table_name);
         std::string getTableName();
-        void gatherSourceFields();
+        bool gatherAndValidateSourceFields();
+        void gatherTargetFields();
         
     private:
         int limit;

@@ -10,6 +10,7 @@
 #include <cppconn/statement.h>
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
+#include <cppconn/resultset_metadata.h>
 #include <sstream>
 namespace MySync {
     DbTable::DbTable(std::string table, std::string statement) {
@@ -38,9 +39,9 @@ namespace MySync {
         return table_name;
     }
     
-    void DbTable::gatherSourceFields() {
+    void DbTable::gatherTargetFields() {
         sql::ResultSet *res;
-        sql::Statement *stmt = source_conn->createStatement();
+        sql::Statement *stmt = target_conn->createStatement();
         std::stringstream ss;
         
         ss << "DESCRIBE " << table_name;
@@ -54,5 +55,36 @@ namespace MySync {
             std::cout << "\t\tFound field: " << field_name <<  std::endl;
         }
         std::cout << "\tDone: GatherSourceFields" << std::endl;
+    }
+    
+    bool DbTable::gatherAndValidateSourceFields() {
+        sql::ResultSet *res;
+        sql::Statement *stmt = source_conn->createStatement();
+        std::stringstream ss;
+        std::string query;
+        
+        ss << select_statement << " LIMIT 1";
+        query = ss.str();
+        
+        std::cout << "\tJob: gatherAndValidateSourceFields | Table: " << table_name << std::endl;
+        std::cout << "\t\tStarting column validation" << std::endl;
+        std::cout << "\t\tExecuting query to get the source column count [" << query << "]" << std::endl;
+        
+        res = stmt->executeQuery(query);
+        res->next();
+        sql::ResultSetMetaData *meta = res->getMetaData();
+        int source_count = meta->getColumnCount();
+
+        if (source_count !=  source_fields.size()) {
+            std::cerr << "\t\tThe query for table " << table_name << " resolves to " << source_count << " cols. The target table has " << source_fields.size() << std::endl;
+            std::cerr << "\t\tThe field alignment is by position, so take care that your query has the exact column count and the cols match in order." << std::endl;
+            std::cerr << "\tFail: Validation for table " << table_name << std::endl;
+            return false;
+        }
+        else {
+            std::cout << "\t\tColumn count looks ok. Proceeding." << std::endl;
+        }
+        std::cout << "\tDone: gatherAndValidateSourceFields" << std::endl;
+        return true;
     }
 }

@@ -11,6 +11,9 @@
 
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
+#include "method_proxy.h"
+#include "update_method.h"
+#include "insert_method.h"
 
 #include "dbtable.h"
 
@@ -61,17 +64,35 @@ int main(int argc, char* argv[]) {
     std::cout << "Gathering tables to process" << std::endl;
     for (std::size_t i = 0; i < tables.size(); i++) {
         const std::string table_name = tables[i].as<std::string>();
-        std::cout << "\t Found: " << table_name << std::endl;
+        std::cout << "\tFound: " << table_name << std::endl;
         
         if (!config["table"][table_name].IsDefined()) {
             std::cerr << "Table " << table_name << " is set in table list, but not described in the table section." << std::endl;
+            std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
+            continue;
         }
         
         MySync::DbTable table = MySync::DbTable(table_name, config["table"][table_name]["statement"].as<std::string>());
         table.setSourceConnection(src_con);
         table.setTargetConnection(trgt_con);
-        table.gatherSourceFields();
+        table.gatherTargetFields();
+        table.gatherAndValidateSourceFields();
+        
+        std::string method = config["table"][table_name]["method"].as<std::string>();
+        
+        if (method == "update") {
+            MySync::UpdateMethod mp = MySync::UpdateMethod();
+            table.setMethodProxy(mp);
+        }
+        else if (method == "insert") {
+            MySync::InsertMethod mp = MySync::InsertMethod();
+            table.setMethodProxy(mp);
+        }
+        else {
+            std::cerr << "\tProvided method " << method << " for table " << table_name << " is unknown." << std::endl;
+            std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
+            continue;
+        }
     }
-    
     return 0;
 }

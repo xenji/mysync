@@ -15,4 +15,4 @@ target:
 table:
   currency:
     statement: "SELECT * FROM currency"
-    method: upsert
+    method: update
