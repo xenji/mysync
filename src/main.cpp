@@ -88,6 +88,10 @@ int main(int argc, char* argv[]) {
             MySync::InsertMethod mp = MySync::InsertMethod();
             table.setMethodProxy(mp);
         }
+        else if (method == "upsert") {
+            MySync::InsertMethod mp = MySync::InsertMethod();
+            table.setMethodProxy(mp);
+        }
         else {
             std::cerr << "\tProvided method " << method << " for table " << table_name << " is unknown." << std::endl;
             std::cerr << "I skip it for now, but you definetly want to check this!" << std::endl;
