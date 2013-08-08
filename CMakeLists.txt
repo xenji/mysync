@@ -13,13 +13,8 @@ add_executable(mysync ${mysync_SRC})
 
 find_package (Threads)
 
-# MySQL
-add_subdirectory(lib/mysql-connector-c++-1.1.3)
-
-#yaml-cpp-0.5.1
 add_subdirectory(lib/yaml-cpp-0.5.1)
-#add_library(yaml-cpp)
-target_link_libraries (mysync yaml-cpp ${CMAKE_THREAD_LIBS_INIT} mysql-connector-c++)
+target_link_libraries (mysync yaml-cpp ${CMAKE_THREAD_LIBS_INIT} ${MYSQL_LIBRARIES})
 
 # distclean
 ADD_CUSTOM_TARGET (distclean @echo cleaning for source distribution)
@@ -34,6 +29,7 @@ SET(DISTCLEANED
   gmon.out
   *~
   CMakeFiles
+  yaml-cpp.pc
 )
 
 ADD_CUSTOM_COMMAND(
@@ -44,3 +40,41 @@ ADD_CUSTOM_COMMAND(
   TARGET  distclean
 )
 
+set(MYSQLCONNECTORCPP_ROOT_DIR "/usr/local")
+
+set(MYSQLCONNECTORCPP_ROOT_DIR 
+        "${MYSQLCONNECTORCPP_ROOT_DIR}" 
+        CACHE 
+        PATH "/usr/local"
+        "Where to start looking for this component.") 
+
+find_path(MYSQLCONNECTORCPP_INCLUDE_DIR 
+        mysql_connection.h 
+        HINTS 
+        ${MYSQLCONNECTORCPP_ROOT_DIR} 
+        PATH_SUFFIXES 
+        include)
+
+find_library(MYSQLCONNECTORCPP_LIBRARY 
+        NAMES 
+        mysqlcppconn 
+        mysqlcppconn-static 
+        HINTS 
+        ${MYSQLCONNECTORCPP_ROOT_DIR} 
+        PATH_SUFFIXES 
+        lib64 
+        lib) 
+
+mark_as_advanced(MYSQLCONNECTORCPP_INCLUDE_DIR MYSQLCONNECTORCPP_LIBRARY) 
+
+include(FindPackageHandleStandardArgs) 
+find_package_handle_standard_args(MysqlConnectorCpp 
+        DEFAULT_MSG 
+        MYSQLCONNECTORCPP_INCLUDE_DIR 
+        MYSQLCONNECTORCPP_LIBRARY) 
+
+if(MYSQLCONNECTORCPP_FOUND) 
+        set(MYSQLCONNECTORCPP_INCLUDE_DIRS "${MYSQLCONNECTORCPP_INCLUDE_DIR}") # Add any dependencies here 
+        set(MYSQLCONNECTORCPP_LIBRARIES "${MYSQLCONNECTORCPP_LIBRARY}") # Add any dependencies here 
+        mark_as_advanced(MYSQLCONNECTORCPP_ROOT_DIR) 
+endif() 
