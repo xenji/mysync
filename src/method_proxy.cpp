@@ -7,6 +7,7 @@
 //
 #include <iostream>
 #include "method_proxy.h"
+#include <cppconn/connection.h>
 
 namespace MySync {
 
@@ -24,5 +25,17 @@ namespace MySync {
     
     void MethodProxy::setKeyField(const std::string _key) {
         key = _key;
+    }
+    
+    void MethodProxy::setSourceConnection(sql::Connection *conn) {
+        source_conn = conn;
+    }
+    
+    void MethodProxy::setTargetConnection(sql::Connection *conn) {
+        target_conn = conn;
+    }
+    
+    std::string MethodProxy::getKeyField() {
+        return key;
     }
 }

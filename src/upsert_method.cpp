@@ -13,6 +13,11 @@ namespace MySync {
         return "INSERT";
     }
     
+    std::string UpsertMethod::enhanceStatement(std::string key, std::string statement) {
+        
+        return statement;
+    }
+    
     std::string UpsertMethod::generateStatement(const std::vector<std::string> values) {
         return "";
     }

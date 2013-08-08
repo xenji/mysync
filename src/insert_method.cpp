@@ -14,6 +14,11 @@ namespace MySync {
         return "INSERT";
     }
     
+    std::string InsertMethod::enhanceStatement(std::string key, std::string statement) {
+        
+        return statement;
+    }
+    
     std::string InsertMethod::generateStatement(const std::vector<std::string> values) {
         return "";
     }

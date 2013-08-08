@@ -77,7 +77,7 @@ namespace MySync {
         res->next();
         sql::ResultSetMetaData *meta = res->getMetaData();
         int source_count = meta->getColumnCount();
-
+        
         if (source_count !=  source_fields.size()) {
             std::cerr << "\t\tThe query for table " << table_name << " resolves to " << source_count << " cols. The target table has " << source_fields.size() << std::endl;
             std::cerr << "\t\tThe field alignment is by position, so take care that your query has the exact column count and the cols match in order." << std::endl;
@@ -101,12 +101,13 @@ namespace MySync {
         method_proxy->setTable(table_name);
         
         int work_count = 0;
-//        int offset = 0; // for later. make it work first.
+        //        int offset = 0; // for later. make it work first.
         sql::ResultSet *source_result;
         sql::ResultSetMetaData *meta;
         sql::Statement *source_statement = source_conn->createStatement();
-        source_result = source_statement->executeQuery(select_statement);
-
+        std::string enhStatement = method_proxy->enhanceStatement(method_proxy->getKeyField(), select_statement);
+        source_result = source_statement->executeQuery(enhStatement);
+        
         std::cout << "\t\tReceived data from the source, starting target run." << std::endl;
         
         while (source_result->next()) {
@@ -121,8 +122,19 @@ namespace MySync {
             }
             
             std::string statement = method_proxy->generateStatement(values);
-            std::cout << "\t\t\tDEBUG: " << statement << std::endl;
-            //target_statement->execute(statement);
+            try {
+                target_statement->execute(statement);
+            }
+            catch (sql::SQLException &e) {
+                std::cerr << "# ERR: SQLException in " << __FILE__;
+                std::cerr << "(" << __FUNCTION__ << ") on line "
+                << __LINE__ << std::endl;
+                std::cerr << "# ERR: " << e.what();
+                std::cerr << " (MySQL error code: " << e.getErrorCode();
+                std::cerr << ", SQLState: " << e.getSQLState() <<
+                " )" << std::endl;
+            }
+            delete target_statement;
             ++work_count;
         }
         

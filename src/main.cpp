@@ -14,6 +14,7 @@
 #include "method_proxy.h"
 #include "update_method.h"
 #include "insert_method.h"
+#include "abort_exception.h"
 
 #include "dbtable.h"
 
@@ -86,16 +87,22 @@ int main(int argc, char* argv[]) {
         if (method == "update") {
             MySync::UpdateMethod *mp = new MySync::UpdateMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
+            mp->setSourceConnection(src_con);
+            mp->setTargetConnection(trgt_con);
             table.setMethodProxy(mp);
         }
         else if (method == "insert") {
             MySync::InsertMethod *mp = new MySync::InsertMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
+            mp->setSourceConnection(src_con);
+            mp->setTargetConnection(trgt_con);
             table.setMethodProxy(mp);
         }
         else if (method == "upsert") {
             MySync::InsertMethod *mp = new MySync::InsertMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
+            mp->setSourceConnection(src_con);
+            mp->setTargetConnection(trgt_con);
             table.setMethodProxy(mp);
         }
         else {
@@ -112,8 +119,13 @@ int main(int argc, char* argv[]) {
         }
         std::cout << "\tEventhough the default and your custom batch size is recognized by MySync, the feature is not yet implemented. Sorry." << std::endl;
         table.setBatchSize(batch_size);
-        
-        table.run();
+        try {
+            table.run();
+        }
+        catch (AbortException &e) {
+            std::cout << "# ERR: Error in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
+            std::cout << "# ERR: " << e.what() << std::endl;
+        }
     }
     return 0;
 }

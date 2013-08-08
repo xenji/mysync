@@ -16,6 +16,7 @@ namespace MySync {
     class InsertMethod : public MethodProxy {
         std::string getMethodName();
         std::string generateStatement(const std::vector<std::string> values);
+        std::string enhanceStatement(std::string key, std::string statement);
     };
 }
 #endif /* defined(__mysync__insert_method__) */
