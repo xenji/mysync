@@ -33,9 +33,25 @@ int main(int argc, char* argv[]) {
     sql::Driver *sql_driver = get_driver_instance();
     
     // Source connection
+    std::string src_password = "";
+    if (config["source"]["pass"].IsDefined()) {
+        src_password = config["source"]["pass"].as<std::string>();
+    }
     sql::Connection *src_con = sql_driver->connect(config["source"]["host"].as<std::string>(),
                                                    config["source"]["user"].as<std::string>(),
-                                                   config["source"]["pass"].as<std::string>());
+                                                   src_password);
+    
+
+    // target connection
+    std::string trgt_password = "";
+    if (config["target"]["pass"].IsDefined()) {
+        trgt_password = config["target"]["pass"].as<std::string>();
+    }
+    
+    sql::Connection *trgt_con = sql_driver->connect(config["target"]["host"].as<std::string>(),
+                                                    config["target"]["user"].as<std::string>(),
+                                                    trgt_password);
+    
     
     // go over the tables
     YAML::Node tables = config["tables"];

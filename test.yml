@@ -3,12 +3,12 @@ tables: ['currency']
 source:
   host: 127.0.0.1:3306
   user: root
-  pass: 
+  #pass: 
 
 target:
   host: 127.0.0.1:3306
   user: root
-  pass: 
+  #pass: 
 
 table:
   foo:
