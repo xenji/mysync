@@ -20,14 +20,18 @@ namespace MySync {
         std::stringstream ss;
         
         ss << "UPDATE " << table_name << " SET ";
+        std::string pkvalue;
         
         for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
-            ss << fields[i] << "='" << values[i] << "'";
-            if ((values.size() - 1) == i) {
-                ss << std::endl;
+            if (fields[i] == key) {
+                pkvalue = values[i];
+                continue;
             }
+            ss << fields[i] << "='" << values[i] << "' ";
         }
-        
+        ss << "WHERE " << key << "='" << pkvalue << "'";
+        ss << std::endl;
+                
         std::string statement = ss.str();
         std::cout << statement << std::endl;
         

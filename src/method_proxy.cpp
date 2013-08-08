@@ -21,4 +21,8 @@ namespace MySync {
     void MethodProxy::setBatchSize(int _size) {
         size = _size;
     }
+    
+    void MethodProxy::setKeyField(const std::string _key) {
+        key = _key;
+    }
 }

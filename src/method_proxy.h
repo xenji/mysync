@@ -20,12 +20,13 @@ namespace MySync {
         void setBatchSize(int);
         void setFields(const std::vector<std::string> _fields);
         void setTable(const std::string _table_name);
+        void setKeyField(const std::string _key);
         virtual ~MethodProxy() {};
     protected:
         int size;
+        std::string key;
         std::vector<std::string> fields;
         std::string table_name;
     };
 }
-
 #endif /* defined(__mysync__method_proxy__) */

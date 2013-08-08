@@ -14,6 +14,7 @@ target:
 
 table:
   currency:
+    key: currency_id
     statement: "SELECT * FROM currency"
     method: update
     #batch_size: 10 # default is 1000

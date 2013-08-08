@@ -85,14 +85,17 @@ int main(int argc, char* argv[]) {
         std::cout << "\tSelected method for processing: " << method << std::endl;
         if (method == "update") {
             MySync::UpdateMethod *mp = new MySync::UpdateMethod();
+            mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             table.setMethodProxy(mp);
         }
         else if (method == "insert") {
             MySync::InsertMethod *mp = new MySync::InsertMethod();
+            mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             table.setMethodProxy(mp);
         }
         else if (method == "upsert") {
             MySync::InsertMethod *mp = new MySync::InsertMethod();
+            mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             table.setMethodProxy(mp);
         }
         else {
