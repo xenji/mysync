@@ -18,7 +18,12 @@ namespace MySync {
         return statement;
     }
     
-    sql::PreparedStatement* TruncInsertMethod::generateStatement(const std::vector<std::string> values) {
+    sql::PreparedStatement* TruncInsertMethod::generateStatement(sql::ResultSetMetaData* md) {
+        sql::PreparedStatement *stmt = NULL;
+        return stmt;
+    }
+    
+    sql::PreparedStatement* TruncInsertMethod::applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values) {
         sql::PreparedStatement *stmt = NULL;
         return stmt;
     }

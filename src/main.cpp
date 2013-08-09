@@ -83,23 +83,24 @@ int main(int argc, char* argv[]) {
         
         std::string method = config["table"][table_name]["method"].as<std::string>();
         
+        MySync::MethodProxy *mp;
         std::cout << "\tSelected method for processing: " << method << std::endl;
         if (method == "update") {
-            MySync::UpdateMethod *mp = new MySync::UpdateMethod();
+            mp = new MySync::UpdateMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             mp->setSourceConnection(src_con);
             mp->setTargetConnection(trgt_con);
             table.setMethodProxy(mp);
         }
         else if (method == "insert") {
-            MySync::InsertMethod *mp = new MySync::InsertMethod();
+            mp = new MySync::InsertMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             mp->setSourceConnection(src_con);
             mp->setTargetConnection(trgt_con);
             table.setMethodProxy(mp);
         }
         else if (method == "upsert") {
-            MySync::InsertMethod *mp = new MySync::InsertMethod();
+            mp = new MySync::InsertMethod();
             mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
             mp->setSourceConnection(src_con);
             mp->setTargetConnection(trgt_con);
@@ -121,6 +122,7 @@ int main(int argc, char* argv[]) {
         table.setBatchSize(batch_size);
         try {
             table.run();
+            delete mp;
         }
         catch (AbortException &e) {
             std::cout << "# ERR: Error in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;

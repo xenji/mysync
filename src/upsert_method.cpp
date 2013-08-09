@@ -10,7 +10,7 @@
 namespace MySync {
     
     std::string UpsertMethod::getMethodName() {
-        return "INSERT";
+        return "UPSERT";
     }
     
     std::string UpsertMethod::enhanceStatement(std::string key, std::string statement) {
@@ -18,7 +18,12 @@ namespace MySync {
         return statement;
     }
     
-    sql::PreparedStatement* UpsertMethod::generateStatement(const std::vector<std::string> values) {
+    sql::PreparedStatement* UpsertMethod::generateStatement(sql::ResultSetMetaData* md) {
+        sql::PreparedStatement *stmt = NULL;
+        return stmt;
+    }
+    
+    sql::PreparedStatement* UpsertMethod::applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values) {
         sql::PreparedStatement *stmt = NULL;
         return stmt;
     }

@@ -12,6 +12,8 @@
 #include <cppconn/resultset.h>
 #include <cppconn/resultset_metadata.h>
 #include <sstream>
+#include <stdio.h>
+#include <time.h>
 namespace MySync {
     DbTable::DbTable(std::string table, std::string statement) {
         select_statement = statement;
@@ -82,9 +84,9 @@ namespace MySync {
             std::cerr << "\t\tThe query for table " << table_name << " resolves to " << source_count << " cols. The target table has " << source_fields.size() << std::endl;
             std::cerr << "\t\tThe field alignment is by position, so take care that your query has the exact column count and the cols match in order." << std::endl;
             std::cerr << "\tFail: Validation for table " << table_name << std::endl;
-            return false;
             delete res;
             delete stmt;
+            return false;
         }
         else {
             std::cout << "\t\tColumn count looks ok. Proceeding." << std::endl;
@@ -99,24 +101,35 @@ namespace MySync {
         std::cout << "\tJob: run | Table: " << table_name << std::endl;
         method_proxy->setFields(source_fields);
         method_proxy->setTable(table_name);
+        time_t start_time = time(NULL);
         
         int work_count = 0;
+        int mod = 10000;
+
         //        int offset = 0; // for later. make it work first.
         sql::ResultSet *source_result;
-        sql::ResultSetMetaData *meta;
         sql::Statement *source_statement = source_conn->createStatement();
         std::string enhStatement = method_proxy->enhanceStatement(method_proxy->getKeyField(), select_statement);
         source_result = source_statement->executeQuery(enhStatement);
+
+        // Determine the steps when we show some output. 
+        if (source_result->rowsCount() < 1000000) {
+            mod = 5000;
+        }
+        else if (source_result->rowsCount() < 100000) {
+            mod = 1000;
+        }
+        else if (source_result->rowsCount() < 10000) {
+            mod = 100;
+        }
         
         std::cout << "\t\tReceived data from the source, starting target run." << std::endl;
         
+        sql::ResultSetMetaData *md = source_result->getMetaData();
+        sql::PreparedStatement* statement = method_proxy->generateStatement(md);
         while (source_result->next()) {
             std::vector<std::string> values;
-            
-            meta = source_result->getMetaData();
-            int col_count = meta->getColumnCount();
-            
-            for (int i = 1; i != col_count; i++) {
+            for (int i = 1; i <= md->getColumnCount(); i++) {
                 values.push_back(source_result->getString(i));
             }
             
@@ -124,9 +137,10 @@ namespace MySync {
             // from to the generateStatement method for not letting the method_proxy know
             // on what connection he works.
             try {
-                sql::PreparedStatement* statement = method_proxy->generateStatement(values);
+                statement = method_proxy->applyValues(statement, values);
                 statement->execute();
-                delete statement;
+                // Using this means about -100 ops per second but is more secure.
+                statement->clearParameters();
             }
             catch (const sql::SQLException &e) {
                 std::cerr << "# ERR: SQLException in " << __FILE__;
@@ -146,12 +160,19 @@ namespace MySync {
                 std::cout << "# ERR: " << std::endl;
             }
             ++work_count;
+            if (work_count % mod == 0) {
+                std::cout << "\t\tProcessed " << work_count << " of " << source_result->rowsCount() << std::endl;
+            }
         }
         
         delete source_result;
         delete source_statement;
+        time_t end_time = time(NULL);
         
-        std::cout << "\t\tProcessed " << work_count << " rows." << std::endl;
+        double diff = difftime(end_time, start_time);
+        double rate = work_count / diff;
+        
+        std::cout << "\t\tProcessed " << work_count << " rows in " << diff << " seconds. This is roughly " << rate << " ops per second." << std::endl;
         std::cout << "\tDone: run" << std::endl;
     }
 }

@@ -23,7 +23,7 @@ namespace MySync {
         return "INSERT";
     }
     
-    std::string InsertMethod::enhanceStatement(std::string key, std::string statement) {
+    std::string InsertMethod::enhanceStatement(const std::string key, const std::string statement) {
         
         sql::Statement *stmt = target_conn->createStatement();
         std::stringstream query;
@@ -43,7 +43,6 @@ namespace MySync {
             ss << statement << " AND ";
         }
         
-        
         while (res->next()) {
             list.push_back(res->getString(1));
         }
@@ -51,39 +50,32 @@ namespace MySync {
         if (list.size() == 0) {
             return statement;
         }
-        
-        std::string joined = boost::algorithm::join(list, "','");
-        ss << key << " NOT IN ('" << joined << "')";
-        statement = ss.str();
+
+        ss << key << " NOT IN ('" << boost::algorithm::join(list, "','") << "')";
+        return ss.str();
+    }
+    
+    sql::PreparedStatement* InsertMethod::applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values) {
+        for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
+            statement->setString(i+1, values[i]);
+        }
         return statement;
     }
     
-    sql::PreparedStatement* InsertMethod::generateStatement(const std::vector<std::string> values) {
-
+    sql::PreparedStatement* InsertMethod::generateStatement(sql::ResultSetMetaData* md) {
         std::stringstream ss;
         std::stringstream vv;
-        sql::PreparedStatement *prep_st;
+        ss << "INSERT INTO " << this->table_name << " (";
         
-        ss << "INSERT INTO " << table_name << " (";
-        
-        for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
-
+        for(std::vector<int>::size_type i = 0; i < md->getColumnCount(); i++) {
             ss << fields[i];
             vv << "?";
-            if (i != values.size()-1) {
+            if (i != md->getColumnCount()-1) {
                 ss << ",";
                 vv << ",";
             }
         }
         ss << ") VALUES (" << vv.str() << ")";
-        std::string test = ss.str();
-        prep_st = this->target_conn->prepareStatement(ss.str());
-        
-        for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
-            prep_st->setString(i+1, values[i]);
-        }
-        
-        return prep_st;
-
+        return this->target_conn->prepareStatement(ss.str());
     }
 }

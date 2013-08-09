@@ -41,7 +41,6 @@ namespace MySync {
         else {
             ss << statement << " AND ";
         }
-        
 
         while (res->next()) {
             list.push_back(res->getString(1));
@@ -50,38 +49,36 @@ namespace MySync {
         if (list.size() == 0) {
             throw AbortException();
         }
-        
-        std::string joined = boost::algorithm::join(list, "','"); 
-        ss << key << " IN ('" << joined << "')";
+        ss << key << " IN ('" << boost::algorithm::join(list, "','") << "')";
+        return ss.str();
+    }
+    
+    sql::PreparedStatement* UpdateMethod::applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values) {
+        // skip first one as it is probably the key. This needs to be enhanced later on.
+        std::vector<int>::size_type i;
+        for(i = 1; i < values.size(); i++) {
+            statement->setString(i, values[i]);
+        }
+        statement->setString(i, values[0]);
         return statement;
     }
     
-    sql::PreparedStatement* UpdateMethod::generateStatement(const std::vector<std::string> values) {
+    sql::PreparedStatement* UpdateMethod::generateStatement(sql::ResultSetMetaData* md) {
         std::stringstream ss;
         std::string pkvalue;
 
         ss << "UPDATE " << table_name << " SET ";
-
-        for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
+        for(std::vector<int>::size_type i = 0; i < md->getColumnCount(); i++) {
             if (fields[i] == key) {
-                pkvalue = values[i];
                 continue;
             }
             ss << fields[i] << "=?";
             
-            if (i != values.size()-1) {
+            if (i != md->getColumnCount()-1) {
                 ss << ", ";
             }
         }
         ss << " WHERE " << key << "=?";
-        sql::PreparedStatement *prep_st = this->target_conn->prepareStatement(ss.str());
-
-        std::vector<int>::size_type i;
-        for(i = 1; i < values.size(); i++) {
-            prep_st->setString(i, values[i]);
-        }
-        prep_st->setString(i, pkvalue);
-        
-        return prep_st;
+        return this->target_conn->prepareStatement(ss.str());
     }
 }

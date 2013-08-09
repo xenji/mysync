@@ -13,12 +13,14 @@
 #include <vector>
 #include <cppconn/connection.h>
 #include <cppconn/prepared_statement.h>
+#include <cppconn/resultset_metadata.h>
 
 namespace MySync {
     class MethodProxy {
     public:
         virtual std::string getMethodName() = 0;
-        virtual sql::PreparedStatement* generateStatement(const std::vector<std::string> values) = 0;
+        virtual sql::PreparedStatement* generateStatement(sql::ResultSetMetaData* md) = 0;
+        virtual sql::PreparedStatement* applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values) = 0;
         virtual std::string enhanceStatement(std::string key, std::string statement) = 0;
         void setBatchSize(int);
         void setSourceConnection(sql::Connection *conn);
