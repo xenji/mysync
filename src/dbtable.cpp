@@ -44,6 +44,14 @@ namespace MySync {
         method_proxy = _method_proxy;
     }
     
+    /**
+     Gathers the target fields by describing the target's table and acquiring 
+     the names of the fields. This means that your source table needs to match or 
+     you get very very strange errors. Although we validate the field counts, it must
+     not match exactly.
+     
+     @author Mario Mueller
+     */
     void DbTable::gatherTargetFields() {
         sql::ResultSet *res;
         sql::Statement *stmt = target_conn->createStatement();
@@ -62,6 +70,13 @@ namespace MySync {
         std::cout << "\tDone: GatherSourceFields" << std::endl;
     }
     
+    /**
+     We validate the source fields against the target fields by simply counting them.
+     This is not the best method on earth but it is simple enough to keep things slim
+     and add a minimum validity.
+     
+     @author Mario Mueller
+     */
     bool DbTable::gatherAndValidateSourceFields() {
         sql::ResultSet *res;
         sql::Statement *stmt = source_conn->createStatement();
@@ -97,6 +112,9 @@ namespace MySync {
         return true;
     }
     
+    /**
+     And now some magic. 
+     */
     void DbTable::run() {
         std::cout << "\tJob: run | Table: " << table_name << std::endl;
         method_proxy->setFields(source_fields);
@@ -106,13 +124,13 @@ namespace MySync {
         int work_count = 0;
         int mod = 10000;
 
-        //        int offset = 0; // for later. make it work first.
+        // int offset = 0; // for later. make it work first.
         sql::ResultSet *source_result;
         sql::Statement *source_statement = source_conn->createStatement();
         std::string enhStatement = method_proxy->enhanceStatement(method_proxy->getKeyField(), select_statement);
         source_result = source_statement->executeQuery(enhStatement);
 
-        // Determine the steps when we show some output. 
+        // Determine the steps when we show some output.
         if (source_result->rowsCount() < 1000000) {
             mod = 5000;
         }
