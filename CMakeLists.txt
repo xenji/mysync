@@ -15,13 +15,16 @@ add_executable(mysync ${mysync_SRC})
 
 #find_package (Threads) // ${CMAKE_THREAD_LIBS_INIT}
 FIND_PACKAGE(Boost)
+FIND_PACKAGE(MySQLClient)
 FIND_PACKAGE(MySQLConnectorCPP)
 FIND_PACKAGE(YamlCpp)
-target_link_libraries (mysync ${YAMLCPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${Boost_LIBRARIES})
+
+target_link_libraries (mysync ${YAMLCPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${Boost_LIBRARIES} ${MYSQL_LIBRARIES})
 include_directories(
 ${Boost_INCLUDE_DIR}
 ${YAMLCPP_INCLUDE_DIR}
 ${MYSQLCONNECTORCPP_INCLUDE_DIR}
+${MYSQL_INCLUDE_DIR}
 /usr/local/include
 /usr/include
 )
@@ -40,6 +43,12 @@ SET(DISTCLEANED
   *~
   CMakeFiles
   yaml-cpp.pc
+  Debug
+  DerivedData
+  CMakeScripts
+  mysync.build
+  mysync.xcodeproj
+  nbproject
 )
 
 ADD_CUSTOM_COMMAND(

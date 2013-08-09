@@ -1,20 +1,20 @@
-tables: ['currency']
+tables: ['item']
 
 source:
+  host: 192.168.1.54:3306
+  user: trivago
+  database: trivago
+  pass: trivago
+
+target:
   host: 127.0.0.1:3306
   user: root
   database: trivago
   #pass: 
 
-target:
-  host: 127.0.0.1:3306
-  user: root
-  database: trivago_new
-  #pass: 
-
 table:
-  currency:
-    key: currency_id
-    statement: "SELECT * FROM currency"
-    method: update
+  item:
+    key: item_id
+    statement: "SELECT * FROM item"
+    method: insert
     #batch_size: 10 # default is 1000

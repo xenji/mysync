@@ -12,6 +12,7 @@
 #include <vector>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <cppconn/prepared_statement.h>
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "abort_exception.h"
@@ -55,28 +56,32 @@ namespace MySync {
         return statement;
     }
     
-    std::string UpdateMethod::generateStatement(const std::vector<std::string> values) {
+    sql::PreparedStatement* UpdateMethod::generateStatement(const std::vector<std::string> values) {
         std::stringstream ss;
-        
-        ss << "UPDATE " << table_name << " SET ";
         std::string pkvalue;
+
+        ss << "UPDATE " << table_name << " SET ";
 
         for(std::vector<int>::size_type i = 0; i < values.size(); i++) {
             if (fields[i] == key) {
                 pkvalue = values[i];
                 continue;
             }
-
-            ss << fields[i] << "= QUOTE('" << values[i] << "')";
+            ss << fields[i] << "=?";
             
             if (i != values.size()-1) {
                 ss << ", ";
             }
         }
-        ss << " WHERE " << key << "='" << pkvalue << "'";
-        ss << std::endl;
-                
-        std::string statement = ss.str();
-        return statement;
+        ss << " WHERE " << key << "=?";
+        sql::PreparedStatement *prep_st = this->target_conn->prepareStatement(ss.str());
+
+        std::vector<int>::size_type i;
+        for(i = 1; i < values.size(); i++) {
+            prep_st->setString(i, values[i]);
+        }
+        prep_st->setString(i, pkvalue);
+        
+        return prep_st;
     }
 }

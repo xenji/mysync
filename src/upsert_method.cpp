@@ -18,7 +18,8 @@ namespace MySync {
         return statement;
     }
     
-    std::string UpsertMethod::generateStatement(const std::vector<std::string> values) {
-        return "";
+    sql::PreparedStatement* UpsertMethod::generateStatement(const std::vector<std::string> values) {
+        sql::PreparedStatement *stmt = NULL;
+        return stmt;
     }
 }

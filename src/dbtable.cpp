@@ -111,7 +111,6 @@ namespace MySync {
         std::cout << "\t\tReceived data from the source, starting target run." << std::endl;
         
         while (source_result->next()) {
-            sql::Statement *target_statement = target_conn->createStatement();
             std::vector<std::string> values;
             
             meta = source_result->getMetaData();
@@ -121,11 +120,15 @@ namespace MySync {
                 values.push_back(source_result->getString(i));
             }
             
-            std::string statement = method_proxy->generateStatement(values);
+            // TODO: This is ugly. We should pass the connection to create the prep statement
+            // from to the generateStatement method for not letting the method_proxy know
+            // on what connection he works.
             try {
-                target_statement->execute(statement);
+                sql::PreparedStatement* statement = method_proxy->generateStatement(values);
+                statement->execute();
+                delete statement;
             }
-            catch (sql::SQLException &e) {
+            catch (const sql::SQLException &e) {
                 std::cerr << "# ERR: SQLException in " << __FILE__;
                 std::cerr << "(" << __FUNCTION__ << ") on line "
                 << __LINE__ << std::endl;
@@ -134,7 +137,14 @@ namespace MySync {
                 std::cerr << ", SQLState: " << e.getSQLState() <<
                 " )" << std::endl;
             }
-            delete target_statement;
+            catch (const std::exception &e) {
+                std::cout << "# ERR: Error in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
+                std::cout << "# ERR: " << e.what() << std::endl;
+            }
+            catch (...) {
+                std::cout << "# ERR: Error in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
+                std::cout << "# ERR: " << std::endl;
+            }
             ++work_count;
         }
         

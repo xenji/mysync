@@ -14,7 +14,7 @@
 namespace MySync {
     class TruncInsertMethod : public MethodProxy {
         std::string getMethodName();
-        std::string generateStatement(const std::vector<std::string> values);
+        sql::PreparedStatement* generateStatement(const std::vector<std::string> values);
         std::string enhanceStatement(std::string key, std::string statement);
     };
 }
