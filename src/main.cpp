@@ -13,8 +13,6 @@
 #include "method_proxy.h"
 #include "update_method.h"
 #include "insert_method.h"
-#include "truncinsert_method.h"
-#include "upsert_method.h"
 #include "abort_exception.h"
 
 #include "dbtable.h"
@@ -111,7 +109,16 @@ int main(int argc, char* argv[]) {
             table.setMethodProxy(mp);
         }
         else if (method == "truncinsert") {
+            sql::Statement *stmt = trgt_con->createStatement();
+            std::stringstream ss;
+            ss << "TRUNCATE TABLE " << table_name;
+            stmt->execute(ss.str());
 
+            mp = new MySync::InsertMethod();
+            mp->setKeyField(config["table"][table_name]["key"].as<std::string>());
+            mp->setSourceConnection(src_con);
+            mp->setTargetConnection(trgt_con);
+            table.setMethodProxy(mp);
         }
         else {
             std::cerr << "\tProvided method " << method << " for table " << table_name << " is unknown." << std::endl;
