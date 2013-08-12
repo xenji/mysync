@@ -33,6 +33,8 @@ Runns a truncate before using the insert mode.
 ### upsert
 Combines a update and insert run.
 
+## Example config
+
 ```
 # Tables is an array of strings like in ("foo", "bar", "baz")
 # Every table mentioned here must appear in the table {} list later on.
