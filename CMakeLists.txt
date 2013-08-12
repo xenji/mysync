@@ -14,14 +14,12 @@ file(GLOB_RECURSE mysync_SRC src/*)
 add_executable(mysync ${mysync_SRC})
 
 #find_package (Threads) // ${CMAKE_THREAD_LIBS_INIT}
-FIND_PACKAGE(Boost)
 FIND_PACKAGE(MySQLClient)
 FIND_PACKAGE(MySQLConnectorCPP)
 FIND_PACKAGE(LibConfig)
 
-target_link_libraries (mysync ${LIBCONFIGPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${Boost_LIBRARIES} ${MYSQL_LIBRARIES})
+target_link_libraries (mysync ${LIBCONFIGPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${MYSQL_LIBRARIES})
 include_directories(
-${Boost_INCLUDE_DIR}
 ${LIBCONFIGPP_INCLUDE_DIR}
 ${MYSQLCONNECTORCPP_INCLUDE_DIR}
 ${MYSQL_INCLUDE_DIR}

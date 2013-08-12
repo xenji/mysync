@@ -128,8 +128,9 @@ namespace MySync {
         sql::ResultSet *source_result;
         sql::Statement *source_statement = source_conn->createStatement();
         std::string enhStatement = method_proxy->enhanceStatement(method_proxy->getKeyField(), select_statement);
+        std::cout << "\t\tUsing statement for selection of source (first 150 chars): [" << enhStatement.substr(0, 150) << "]" << std::endl;
         source_result = source_statement->executeQuery(enhStatement);
-
+        std::cout << "\t\tStatement returned " << source_result->rowsCount() << " rows." << std::endl;
         // Determine the steps when we show some output.
         if (source_result->rowsCount() < 1000000) {
             mod = 5000;
