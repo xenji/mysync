@@ -14,7 +14,6 @@
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
 #include <sstream>
-#include <boost/algorithm/string/join.hpp>
 #include "abort_exception.h"
 
 namespace MySync {
@@ -49,7 +48,15 @@ namespace MySync {
         if (list.size() == 0) {
             throw AbortException();
         }
-        ss << key << " IN ('" << boost::algorithm::join(list, "','") << "')";
+        ss << key << " IN ('";
+        
+        for (int i = 0; i < list.size(); i++) {
+            ss  << list[i];
+            if (i < (list.size() - 1)) {
+                ss << "','";
+            }
+        }
+        ss << "')";
         return ss.str();
     }
     
