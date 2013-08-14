@@ -29,6 +29,7 @@ namespace MySync {
         void gatherTargetFields();
         void run();
         
+        
     private:
         int batch_size;
         MethodProxy *method_proxy;

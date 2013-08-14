@@ -16,7 +16,7 @@ namespace MySync {
     class InsertMethod : public MethodProxy {
         std::string getMethodName();
         sql::PreparedStatement* generateStatement(sql::ResultSetMetaData* md);
-        sql::PreparedStatement* applyValues(sql::PreparedStatement* statement, const std::vector<std::string> values);
+        sql::PreparedStatement* applyValues(sql::PreparedStatement* statement, std::vector<std::string> values);
         std::string enhanceStatement(std::string key, std::string statement);
     };
 }

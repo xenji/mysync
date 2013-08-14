@@ -1,24 +1,26 @@
 cmake_minimum_required (VERSION 2.6)
-project (mysync)
+project (mysync C CXX)
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/build/modules)
 
-set(CMAKE_CXX_FLAGS "-Wall -O2 -funroll-loops -fstrict-aliasing -ffast-math -fno-strict-aliasing -march=native -mtune=native")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -funroll-loops -fstrict-aliasing -ffast-math -fno-strict-aliasing -march=native -mtune=native")
+#set(CMAKE_CXX_FLAGS "-Wall -std=c++0x -stdlib=libc++")
+set(CMAKE_CXX_FLAGS "-Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -funroll-loops -ffast-math")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-
+#set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
+#set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
+#set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 set(BUILD_SHARED_LIBRARIES, false)
 set(BUILD_STATIC_EXECUTABLES false)
 
 file(GLOB_RECURSE mysync_SRC src/*)
-# set(mysync_SRC src/main.cpp src/dbtable.cpp src/dbtable.h)
 add_executable(mysync ${mysync_SRC})
 
-#find_package (Threads) // ${CMAKE_THREAD_LIBS_INIT}
 FIND_PACKAGE(MySQLClient)
 FIND_PACKAGE(MySQLConnectorCPP)
 FIND_PACKAGE(LibConfig)
+FIND_PACKAGE(Threads)
 
-target_link_libraries (mysync ${LIBCONFIGPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${MYSQL_LIBRARIES})
+target_link_libraries (mysync ${LIBCONFIGPP_LIBRARY} ${MYSQLCONNECTORCPP_LIBRARIES} ${MYSQL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 include_directories(
 ${LIBCONFIGPP_INCLUDE_DIR}
 ${MYSQLCONNECTORCPP_INCLUDE_DIR}
