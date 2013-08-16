@@ -93,7 +93,7 @@ namespace MySync {
         res = stmt->executeQuery(query);
         res->next();
         sql::ResultSetMetaData *meta = res->getMetaData();
-        int source_count = meta->getColumnCount();
+        std::size_t source_count = meta->getColumnCount();
         
         if (source_count !=  source_fields.size()) {
             std::cerr << "\t\tThe query for table " << table_name << " resolves to " << source_count << " cols. The target table has " << source_fields.size() << std::endl;
@@ -148,7 +148,7 @@ namespace MySync {
         sql::PreparedStatement* statement = method_proxy->generateStatement(md);
         while (source_result->next()) {
             std::vector<std::string> values;
-            for (int i = 1; i <= md->getColumnCount(); i++) {
+            for (std::size_t i = 1; i <= md->getColumnCount(); i++) {
                 values.push_back(source_result->getString(i));
             }
             
