@@ -50,7 +50,7 @@ namespace MySync {
         }
         ss << key << " IN ('";
         
-        for (int i = 0; i < list.size(); i++) {
+        for (std::size_t i = 0; i < list.size(); i++) {
             ss  << list[i];
             if (i < (list.size() - 1)) {
                 ss << "','";

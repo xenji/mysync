@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
         const Setting &tables = config.getRoot()["tables"];
         const Setting &table_root = config.getRoot()["table"];
         std::cout << "Gathering tables to process" << std::endl;
-        for (std::size_t i = 0; i < tables.getLength(); i++) {
+        for (int i = 0; i < tables.getLength(); i++) {
             const std::string table_name = tables[i].c_str();
             std::cout << "\tFound: " << table_name << std::endl;
             
