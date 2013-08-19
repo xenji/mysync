@@ -64,7 +64,16 @@ namespace MySync {
             return statement;
         }
 
-        ss << key << " NOT IN ('" << boost::algorithm::join(list, "','") << "')";
+        ss << key << " NOT IN ('";
+        
+        for (int i = 0; i < list.size(); i++) {
+            ss  << list[i];
+            if (i < (list.size() - 1)) {
+                ss << "','";
+            }
+        }
+        ss << "')";
+
         return ss.str();
     }
     
