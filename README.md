@@ -22,7 +22,7 @@ Please find the documentation of the config in the test.conf file and refer to t
 mysync has four operation methods. You can configure different methods per table.
 
 ### update
-This mode selects all present IDs from the target table and selects only those from the source table.
+This mode selects all present IDs from the target table and selects only those from the source table. If you use this method, the first selected col MUST be the PK you want to use for determine the correct row for the update statement!
 
 ### insert
 This mode selects all present IDs from the target table and selects only IDs from the source table, that are NOT IN the selected bunch of IDs.
