@@ -12,6 +12,7 @@
 #include <vector>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <cppconn/exception.h>
 #include <cppconn/prepared_statement.h>
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
@@ -31,8 +32,21 @@ namespace MySync {
         std::stringstream ss;
         
         query << "SELECT " << key << " FROM " << table_name;
-        sql::ResultSet *res = stmt->executeQuery(query.str());
-        
+        sql::ResultSet *res;
+        try {
+            res = stmt->executeQuery(query.str());
+        }
+        catch (const sql::SQLException &e) {
+            std::cerr << "# ERR: SQLException in " << __FILE__;
+            std::cerr << "(" << __FUNCTION__ << ") on line "
+            << __LINE__ << std::endl;
+            std::cerr << "# ERR: " << e.what();
+            std::cerr << " (MySQL error code: " << e.getErrorCode();
+            std::cerr << ", SQLState: " << e.getSQLState() <<
+            " )" << std::endl;
+            res = NULL;
+        }
+
         if (
             (statement.find("WHERE") == std::string::npos)
             && (statement.find("where") == std::string::npos)) {

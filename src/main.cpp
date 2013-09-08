@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
         const Setting &tables = config.getRoot()["tables"];
         const Setting &table_root = config.getRoot()["table"];
         std::cout << "Gathering tables to process" << std::endl;
-        for (std::size_t i = 0; i < tables.getLength(); i++) {
+        for (int i = 0; i < tables.getLength(); i++) {
             const std::string table_name = tables[i].c_str();
             std::cout << "\tFound: " << table_name << std::endl;
             
@@ -115,6 +115,9 @@ int main(int argc, char* argv[]) {
                 table.setMethodProxy(mp);
                 
                 mp = new MySync::InsertMethod();
+                mp->setKeyField(table_root[table_name]["key"].c_str());
+                mp->setSourceConnection(src_con);
+                mp->setTargetConnection(trgt_con);
                 table.setMethodProxy(mp);
             }
             else if (method == "truncinsert") {
@@ -145,13 +148,11 @@ int main(int argc, char* argv[]) {
             table.setBatchSize(batch_size);
             try {
                 table.run();
-                
             }
             catch (AbortException &e) {
                 std::cout << "# ERR: Error in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
                 //std::cout << "# ERR: " << e.what() << std::endl;
             }
-            delete mp;
         }
     }
     catch(const FileIOException &fioex)
